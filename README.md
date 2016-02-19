@@ -2,8 +2,8 @@
 ###### Yet another VirtualBox snapshotting script \o/
 Simple bash scripts allowing to take/delete snapshots of VirtualBox machines. They are meant to be triggered by cron tasks and are targetted at boxes used as local development environments.
 They were made to allow separate workflows for:
-- snapshots of your currently running/online project VMS to be able to quickly revert to a previous step in case of mistakes (eg you replaced your WIP database with a fresh dump to test a merge request, then realized your own changes were not exported to code)
-- snapshots of halted/offline VMS for longer terms projects/backups
+- snapshots of all your currently running/online project VMS to be able to quickly revert to a previous step in case of mistakes (eg you replaced your WIP database with a fresh dump to test a merge request, then realized your own changes were not exported to code)
+- snapshots of all halted/offline VMS for longer terms projects/backups
 
 ## vbox-snapshot.sh
 Takes the snapshots, only takes one argument, either
