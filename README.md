@@ -7,11 +7,11 @@ They were made to allow separate workflows for:
 
 ## vbox-snapshot.sh
 Takes the snapshots, only takes one argument, either
-*  --running : takes snapshots of currently running VMs
-*  --poweroff : takes snapshots of currently halted VMs
+*  --running : takes snapshots of all the currently running VMs
+*  --poweroff : takes snapshots of all the currently halted VMs
   
 ## vbox-snapshot.sh
-Delete the snapshots, takes two arguments
+Delete the snapshots created by vbox-snapshot.sh, takes two arguments
 *  --keep <number> : number of snapshots to keep
 *  --running || --poweroff : either deletes snapshots that were taken when the VMs was running or powered off (not related to the 'current' state of the VM)
 
