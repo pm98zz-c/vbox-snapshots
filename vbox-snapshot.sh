@@ -72,7 +72,7 @@ takeSnapshotpoweroff(){
     takeSnapshotrunning "$1" "$2"
     return 0
   fi
-  echo "Virtual machine $2 ($1) has not changed since last snapshot, skipping it."
+  # echo "Virtual machine $2 ($1) has not changed since last snapshot, skipping it."
   return 0
 }
 
