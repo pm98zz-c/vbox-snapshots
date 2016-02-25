@@ -5,6 +5,11 @@
 # "Namespace" our snapshots.
 PREFIX="vbox-snapshot-"
 
+# Make sure we can reach the binary.
+# This is mainly for Mac OS support.
+PATH="/opt/bin:/usr/local/bin:$PATH"
+VBOX_MG=$(which VBoxManage)
+
 # Display arguments options.
 usage(){
   echo "$0 --running || --poweroff"
@@ -21,7 +26,7 @@ if [ ! "$1" = "--running" ] && [ ! "$1" = "--poweroff" ]; then
 fi
 
 # Gather VMs informations.
-ALL_VMS=$(VBoxManage list vms | cut -d "{" -f2 | cut -d "}" -f1)
+ALL_VMS=$($VBOX_MG list vms | cut -d "{" -f2 | cut -d "}" -f1)
 
 # Just in case…
 if [ -z "$ALL_VMS" ]; then
@@ -40,7 +45,7 @@ takeSnapshotrunning(){
   echo "Taking a snapshot of Virtual machine $2 ($1) while in $SUFFIX mode."
   TIMESTRING=$(date -u '+%Y-%m-%dT%H:%M:%S')
   SNAPSHOT_NAME="$PREFIX$SUFFIX $TIMESTRING"
-  VBoxManage snapshot "$1" take "$SNAPSHOT_NAME" || exit 1
+  $VBOX_MG snapshot "$1" take "$SNAPSHOT_NAME" || exit 1
 }
 
 # Performs a check on offline VMs
@@ -49,7 +54,7 @@ takeSnapshotrunning(){
 # @param $2 (string) Human name of the VM
 takeSnapshotpoweroff(){
   # Check if a snapshot already exists.
-  CURRENT_SNAPSHOT=$(VBoxManage showvminfo "$1" --machinereadable | grep "CurrentSnapshotName=\"$PREFIX$SUFFIX" | cut -d "\"" -f 2 | cut -d "\"" -f 1)
+  CURRENT_SNAPSHOT=$($VBOX_MG showvminfo "$1" --machinereadable | grep "CurrentSnapshotName=\"$PREFIX$SUFFIX" | cut -d "\"" -f 2 | cut -d "\"" -f 1)
   # if not, take one.
   if [ -z "$CURRENT_SNAPSHOT" ]; then
     takeSnapshotrunning "$1" "$2"
@@ -57,7 +62,7 @@ takeSnapshotpoweroff(){
   fi
   # Fetch and compare last changed state and date of current snapshot.
   SNAPSHOT_DATE=$(echo "$CURRENT_SNAPSHOT" | cut -d " " -f 2)
-  LASTCHANGED_DATE=$(VBoxManage showvminfo "$1" --machinereadable | grep "VMStateChangeTime=" | cut -d "\"" -f 2 | cut -d "." -f 1)
+  LASTCHANGED_DATE=$($VBOX_MG showvminfo "$1" --machinereadable | grep "VMStateChangeTime=" | cut -d "\"" -f 2 | cut -d "." -f 1)
   # BSD/Coreutils switch.
   date --version >/dev/null 2>&1
   if [ "$?" -eq "0" ]; then
@@ -84,9 +89,9 @@ takeSnapshotpoweroff(){
 # and actual snapshot taking.
 for VM_ID in $ALL_VMS;
 do
-  STATE_INFO=$(VBoxManage showvminfo "$VM_ID" --machinereadable | grep "VMState=" | cut -d "\"" -f 2 | cut -d "\"" -f 1)
+  STATE_INFO=$(env VBoxManage showvminfo "$VM_ID" --machinereadable | grep "VMState=" | cut -d "\"" -f 2 | cut -d "\"" -f 1)
   if [ "$STATE_INFO" = "$SUFFIX" ]; then
-    VM_NAME=$(VBoxManage showvminfo "$VM_ID" --machinereadable | grep "name=" | cut -d "\"" -f 2 | cut -d "\"" -f 1)
+    VM_NAME=$($VBOX_MG showvminfo "$VM_ID" --machinereadable | grep "name=" | cut -d "\"" -f 2 | cut -d "\"" -f 1)
     SNAP_COMMAND="takeSnapshot$SUFFIX"
     $SNAP_COMMAND "$VM_ID" "$VM_NAME"
   fi
